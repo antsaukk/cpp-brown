@@ -1,7 +1,8 @@
-#include "geo2d.h"
+//#include "geo2d.h"
+#include "geo2d.cpp"
 #include "game_object.h"
 
-#include "test_runner.h"
+#include "../../utils/test_runner.h"
 
 #include <vector>
 #include <memory>
