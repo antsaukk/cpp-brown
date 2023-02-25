@@ -1,9 +1,2 @@
-
-week-1/set_iterator/bin/set_iterator_next
-week-1/point_hash_set/bin/hash_point
-week-1/point_hash_set/.DS_Store
-week-1/hash_set/.DS_Store
-week-1/hash_person/bin/hash_person
-week-1/.DS_Store
-hash_person.cp
-week-1/.DS_Store
+**/bin/*
+**/.DS_Store*
