@@ -1,5 +1,4 @@
-//#include "../../utils/test_runner.h"
-#include "test_runner.h"
+#include "../../utils/test_runner.h"
 
 #include <iostream>
 #include <functional>
@@ -9,7 +8,7 @@ using namespace std;
 template <typename T>
 class LazyValue {
 public:
-  explicit LazyValue(std::function<T()> init) : 
+  explicit LazyValue(std::function<T()> init) :
   init_(move(init)) {}
 
   bool HasValue() const {
@@ -17,7 +16,7 @@ public:
   }
   
   const T& Get() const {
-    if (!HasValue()) {
+    if (lock_guard g(m); !HasValue()) {
       object_ = init_();
     }
 
@@ -27,6 +26,7 @@ public:
 private:
   std::function<T()> init_;
   mutable std::optional<T> object_;
+  mutable mutex m;
 };
 
 void UseExample() {
