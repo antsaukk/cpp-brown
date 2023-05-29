@@ -8,6 +8,8 @@
 #include <set>
 using namespace std;
 
+// this is erroneous implementation
+// and it is done with intention
 template <class T>
 class ObjectPool {
 public:

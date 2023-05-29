@@ -72,13 +72,13 @@ void TestSpeedup() {
     ConcurrentMap<int, int> single_lock(1);
 
     LOG_DURATION("Single lock");
-    RunConcurrentUpdates(single_lock, 4, 50000);
+    RunConcurrentUpdates(single_lock, 4, 200000);
   }
   {
     ConcurrentMap<int, int> many_locks(100);
 
     LOG_DURATION("100 locks");
-    RunConcurrentUpdates(many_locks, 4, 50000);
+    RunConcurrentUpdates(many_locks, 4, 200000);
   }
 }
 
