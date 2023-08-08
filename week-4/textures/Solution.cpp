@@ -55,9 +55,9 @@ public:
 
 	void Draw(Image& im) const
 	{
-		for (size_t y = position_.y; y <= size_.height; y++)
+		for (int y = position_.y; y < position_.y + size_.height; y++)
 		{
-			for (size_t x = position_.x; x <= size_.width; x++)
+			for (int x = position_.x; x < position_.x + size_.width; x++)
 			{
 				if (texture_)
 				{
@@ -66,7 +66,8 @@ public:
 						size_t sy = y - position_.y;
 						size_t sx = x - position_.x;
 
-						im[y][x] = texture_->GetImage()[sy][sx];
+						if (sy >= 0 && sx >= 0 && sy < texture_->GetSize().height && sx < texture_->GetSize().width)
+							im[y][x] = texture_->GetImage()[sy][sx];
 					}
 					else
 					{
@@ -136,18 +137,22 @@ public:
 
 	void Draw(Image& im) const
 	{
-		for (size_t y = position_.y; y <= size_.height; y++)
+		for (int y = position_.y; y < position_.y + size_.height; y++)
 		{
-			for (size_t x = position_.x; x <= size_.width; x++)
+			for (int x = position_.x; x < position_.x + size_.width; x++)
 			{
 				if (texture_)
 				{
-					if (IsPointInEllipse(Point{static_cast<int>(x), static_cast<int>(y)}, size_))
+					if (y <= texture_->GetSize().height && x <= texture_->GetSize().width)
 					{
-						size_t sy = y - position_.y;
-						size_t sx = x - position_.x;
+						if (IsPointInEllipse(Point{x - position_.x, y - position_.y}, size_))
+						{	
+							size_t sy = y - position_.y;
+							size_t sx = x - position_.x;
 
-						im[y][x] = texture_->GetImage()[sy][sx];
+							if (sy >= 0 && sx >= 0 && sy < texture_->GetSize().height && sx < texture_->GetSize().width)
+								im[y][x] = texture_->GetImage()[sy][sx];
+						}
 					}
 					else
 					{

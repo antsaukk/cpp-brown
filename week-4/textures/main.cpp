@@ -190,11 +190,33 @@ void TestCpp() {
   ASSERT_EQUAL(answer, output.str());
 }
 
+/*void TestOutOfCanvas() {
+  Canvas canvas;
+  canvas.SetSize({6, 4});
+
+  canvas.AddShape(ShapeType::Rectangle, {1, 1}, {4, 2},
+                  MakeTextureSolid({7, 1}, '*'));
+
+  stringstream output;
+  canvas.Print(output);
+
+  const auto answer =
+      "########\n"
+      "#      #\n"
+      "# **** #\n"
+      "# .... #\n"
+      "#      #\n"
+      "########\n";
+
+  ASSERT_EQUAL(answer, output.str());
+}*/
+
 int main() {
   TestRunner tr;
   RUN_TEST(tr, TestSimple);
   RUN_TEST(tr, TestSmallTexture);
   RUN_TEST(tr, TestCow);
   RUN_TEST(tr, TestCpp);
+  //RUN_TEST(tr, TestOutOfCanvas);
   return 0;
 }
