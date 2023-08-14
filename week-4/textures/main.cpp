@@ -190,7 +190,7 @@ void TestCpp() {
   ASSERT_EQUAL(answer, output.str());
 }
 
-/*void TestOutOfCanvas() {
+void TestOutOfCanvas() {
   Canvas canvas;
   canvas.SetSize({6, 4});
 
@@ -209,7 +209,7 @@ void TestCpp() {
       "########\n";
 
   ASSERT_EQUAL(answer, output.str());
-}*/
+}
 
 int main() {
   TestRunner tr;
@@ -217,6 +217,6 @@ int main() {
   RUN_TEST(tr, TestSmallTexture);
   RUN_TEST(tr, TestCow);
   RUN_TEST(tr, TestCpp);
-  //RUN_TEST(tr, TestOutOfCanvas);
+  RUN_TEST(tr, TestOutOfCanvas);
   return 0;
 }

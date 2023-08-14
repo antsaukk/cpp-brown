@@ -3,9 +3,6 @@
 
 using namespace std;
 
-// Этот файл сдаётся на проверку
-// Здесь напишите реализацию необходимых классов-потомков `IShape`
-
 class Rectangle : public IShape 
 {
 public:
@@ -57,26 +54,30 @@ public:
 	{
 		for (int y = position_.y; y < position_.y + size_.height; y++)
 		{
-			for (int x = position_.x; x < position_.x + size_.width; x++)
+			if (y < im.size())
 			{
-				if (texture_)
+				for (int x = position_.x; x < position_.x + size_.width; x++)
 				{
-					if (y <= texture_->GetSize().height && x <= texture_->GetSize().width)
+					if (x < im[0].size())
 					{
-						size_t sy = y - position_.y;
-						size_t sx = x - position_.x;
-
-						if (sy >= 0 && sx >= 0 && sy < texture_->GetSize().height && sx < texture_->GetSize().width)
-							im[y][x] = texture_->GetImage()[sy][sx];
+						if (texture_)
+						{
+							if (y < position_.y + texture_->GetSize().height && x < position_.x + texture_->GetSize().width)
+							{
+								int sy = y - position_.y;
+								int sx = x - position_.x;
+								im[y][x] = texture_->GetImage()[sy][sx];
+							}
+							else
+							{
+								im[y][x] = '.';
+							}
+						}
+						else
+						{
+							im[y][x] = '.';
+						}
 					}
-					else
-					{
-						im[y][x] = '.';
-					}
-				}
-				else
-				{
-					im[y][x] = '.';
 				}
 			}
 		}
@@ -139,29 +140,33 @@ public:
 	{
 		for (int y = position_.y; y < position_.y + size_.height; y++)
 		{
-			for (int x = position_.x; x < position_.x + size_.width; x++)
+			if (y < im.size())
 			{
-				if (texture_)
+				for (int x = position_.x; x < position_.x + size_.width; x++)
 				{
-					if (y <= texture_->GetSize().height && x <= texture_->GetSize().width)
+					if (x < im[0].size())
 					{
-						if (IsPointInEllipse(Point{x - position_.x, y - position_.y}, size_))
-						{	
-							size_t sy = y - position_.y;
-							size_t sx = x - position_.x;
-
-							if (sy >= 0 && sx >= 0 && sy < texture_->GetSize().height && sx < texture_->GetSize().width)
-								im[y][x] = texture_->GetImage()[sy][sx];
+						int sy = y - position_.y;
+						int sx = x - position_.x;
+						if (IsPointInEllipse(Point{sx, sy}, size_))
+						{
+							if (texture_)
+							{
+								if (y < position_.y + texture_->GetSize().height && x < position_.x + texture_->GetSize().width)
+								{
+									im[y][x] = texture_->GetImage()[sy][sx];
+								}
+								else
+								{
+									im[y][x] = '.';
+								}
+							}
+							else
+							{
+								im[y][x] = '.';
+							}
 						}
 					}
-					else
-					{
-						im[y][x] = '.';
-					}
-				}
-				else
-				{
-					im[y][x] = '.';
 				}
 			}
 		}
@@ -173,7 +178,6 @@ private:
 	std::shared_ptr<ITexture> texture_;
 };
 
-// Напишите реализацию функции
 unique_ptr<IShape> MakeShape(ShapeType shape_type) {
 	if (shape_type == ShapeType::Rectangle)
 	{
