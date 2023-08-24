@@ -1,8 +1,47 @@
 #include "Common.h"
 
+#include <unordered_set>
 #include <unordered_map>
 
 using namespace std;
+
+// cache structure that stores books
+struct BookKeeper
+{
+  unordered_set<string> books_;
+  unordered_map<string, int> books_ratings_;
+  size_t rating_ = 0;
+  size_t memory_used_by_books_ = 0;
+
+  void IncreaseAndAssign(const std::string& book_name)
+  {
+    books_ratings_[book_name] = ++rating_;
+  }
+
+  const size_t GetMemoryUsedByBooks() const
+  {
+    return memory_used_by_books_;
+  }
+
+  void AddBook(const std::string& book_name, BookPtr bookToAdd)
+  {
+    books_.insert(book_name);
+    IncreaseAndAssign(book_name);
+    memory_used_by_books_ += books_[book_name].size();
+  }
+
+  void DeleteBook(const std::string& book_name)
+  {
+    memory_used_by_books_ -= books_[book_name].size();
+    books_.erase(book_name);
+    books_ratings_.erase(book_name);
+  }
+
+  const bool IsKeeperEmpty() const
+  {
+    return books_.empty();
+  }
+};
 
 class LruCache : public ICache {
 public:
@@ -19,10 +58,10 @@ public:
     // if book with requested name is in cache, return it
     // otherwise fetch book from books_unpacker
 
-    if (book_keeper_.books_.count(book_name))
+    if (book_keeper_.books_.find(book_name) != book_keeper_.books_.end())
     {
-      book_keeper_.books_ratings_[book_name] = book_keeper_.increaseAndAssign();
-      return book_keeper_.books_[book_name];
+      book_keeper_.IncreaseAndAssign(book_name);
+      //return book_keeper_.books_[book_name];
     }
     else
     {
@@ -30,8 +69,8 @@ public:
       auto requestedBook = books_unpacker_->UnpackBook(book_name);
 
       // perform LRU selection first
-      while(books_unpacker_->GetMemoryUsedByBooks() > settings_.max_memory ||
-        !book_keeper_.books_.empty())
+      while(book_keeper_.GetMemoryUsedByBooks() > settings_.max_memory ||
+        !book_keeper_.IsKeeperEmpty())
       {
         int lru = INT_MAX;
         string candidateToDelete = "";
@@ -46,15 +85,14 @@ public:
           }
         }
      
-        // Remove the book_keeper_.books_ratings_ page
-        book_keeper_.books_.erase(candidateToDelete);
-        book_keeper_.books_ratings_.erase(candidateToDelete);
+        // Remove the book_ 
+        book_keeper_.DeleteBook(book_name);
       }
 
-      if (books_unpacker_->GetMemoryUsedByBooks() < settings_.max_memory)
-      {
-        book_keeper_.books_[book_name] = requestedBook;
-        book_keeper_.books_ratings_[book_name] = book_keeper_.increaseAndAssign();
+      if (book_keeper_.GetMemoryUsedByBooks() < settings_.max_memory)
+      { 
+        // typecast pointer
+        book_keeper_.AddBook(book_name, /*second argument typecasted ppointer*/);
       }
 
       return requestedBook;
@@ -69,18 +107,7 @@ private:
   // to be used to track max available memory
   Settings settings_;
 
-  // cache structure that stores books
-  struct BookKeeper {
-    unordered_map<string, BookPtr> books_;
-    unordered_map<string, int> books_ratings_;
-    size_t rating_ = 0;
-
-    size_t increaseAndAssign()
-    {
-      return ++rating_;
-    }
-  };
-
+  // cache structure that holds books
   BookKeeper book_keeper_;
 };
 
