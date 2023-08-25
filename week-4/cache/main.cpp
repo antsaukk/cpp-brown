@@ -215,7 +215,7 @@ int main() {
   RUN_CACHE_TEST(tr, TestMaxMemory);
   RUN_CACHE_TEST(tr, TestCaching);
   RUN_CACHE_TEST(tr, TestSmallCache);
-  //RUN_CACHE_TEST(tr, TestAsync);
+  RUN_CACHE_TEST(tr, TestAsync);
 
 #undef RUN_CACHE_TEST
   return 0;
