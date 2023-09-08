@@ -1,0 +1,141 @@
+#include <iostream>
+
+#include <string>
+#include <map>
+#include <unordered_map>
+
+// Перечислимый тип для статуса задачи
+enum class TaskStatus {
+  NEW,          // новая
+  IN_PROGRESS,  // в разработке
+  TESTING,      // на тестировании
+  DONE          // завершена
+};
+
+// Объявляем тип-синоним для map<TaskStatus, int>,
+// позволяющего хранить количество задач каждого статуса
+using TasksInfo = std::map<TaskStatus, int>;
+
+class TeamTasks {
+public:
+  // Получить статистику по статусам задач конкретного разработчика
+  const TasksInfo& GetPersonTasksInfo(const std::string& person) const
+  {
+    return info_.at(person);
+  }
+  
+  // Добавить новую задачу (в статусе NEW) для конкретного разработчитка
+  void AddNewTask(const std::string& person)
+  {
+    info_[person][TaskStatus::NEW] += 1;
+  }
+  
+  // Обновить статусы по данному количеству задач конкретного разработчика,
+  // подробности см. ниже
+  std::tuple<TasksInfo, TasksInfo> PerformPersonTasks(
+      const std::string& person, int task_count)
+  {
+    TasksInfo& developer_tasks = info_[person];
+
+    TasksInfo old = info_[person];
+    TasksInfo updated;
+
+    int completed = 0;
+
+    for (auto it = old.begin();
+      it != old.end() && task_count > 0; it++)
+    {
+      switch(it->first)
+      {
+        case(TaskStatus::NEW) :
+          updated[TaskStatus::IN_PROGRESS] = it->second < task_count ? it->second : task_count;
+          task_count -= updated[TaskStatus::IN_PROGRESS];
+
+          break;
+        case(TaskStatus::IN_PROGRESS) :
+          updated[TaskStatus::TESTING] = it->second < task_count ? it->second : task_count;
+          task_count -= updated[TaskStatus::TESTING];
+
+          break;
+        case(TaskStatus::TESTING) :
+          updated[TaskStatus::DONE] = it->second < task_count ? it->second : task_count;
+          task_count -= updated[TaskStatus::DONE];
+
+          break;
+        case(TaskStatus::DONE) :
+          completed = it->second < task_count ? it->second : task_count;
+          task_count = 0;
+          break;
+        default:
+          std::cout << "Unnamed TaskStatus token\n";
+          break;
+      }
+    }
+
+    if (old.count(TaskStatus::DONE))
+    {
+      old.erase(TaskStatus::DONE);
+    }
+
+    // clear updated zero tasks
+    ClearCollectionFromZeros(updated);
+
+    for (auto& task_entity : updated)
+    {
+      if (task_entity.first == TaskStatus::IN_PROGRESS)
+      {
+        old[TaskStatus::NEW] -= task_entity.second;
+        developer_tasks[TaskStatus::NEW] -= task_entity.second;
+
+        developer_tasks[TaskStatus::IN_PROGRESS] += task_entity.second;
+      }
+      else if (task_entity.first == TaskStatus::TESTING)
+      {
+        old[TaskStatus::IN_PROGRESS] -= task_entity.second;
+        developer_tasks[TaskStatus::IN_PROGRESS] -= task_entity.second;
+
+        developer_tasks[TaskStatus::TESTING] += task_entity.second;
+      }
+      else if (task_entity.first == TaskStatus::DONE)
+      {
+        old[TaskStatus::TESTING] -= task_entity.second;
+        developer_tasks[TaskStatus::TESTING] -= task_entity.second;
+
+        developer_tasks[TaskStatus::DONE] += task_entity.second;
+      }
+    }
+
+    if (completed)
+    {
+      developer_tasks[TaskStatus::DONE] -= completed;
+    }
+
+    ClearCollectionFromZeros(old);
+
+    ClearCollectionFromZeros(developer_tasks);
+
+    return std::tie(updated, old);
+  }
+
+private:
+  std::unordered_map<std::string, TasksInfo> info_;
+
+  void ClearCollectionFromZeros(TasksInfo& tasks)
+  {
+    if (tasks[TaskStatus::NEW] == 0) {
+      tasks.erase(TaskStatus::NEW);
+    }
+
+    if (tasks[TaskStatus::IN_PROGRESS] == 0) {
+      tasks.erase(TaskStatus::IN_PROGRESS);
+    }
+
+    if (tasks[TaskStatus::TESTING] == 0) {
+      tasks.erase(TaskStatus::TESTING);
+    }
+
+    if (tasks[TaskStatus::DONE] == 0) {
+      tasks.erase(TaskStatus::DONE);
+    }
+  }
+};
